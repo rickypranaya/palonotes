@@ -1,21 +1,37 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, {useState} from 'react';
+import Home from './src/screens/Home';
+
+// import library
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import AppLoading from 'expo-app-loading';
 
 export default function App() {
+
+  // variables
+  const [ready, setReady] = useState(false)
+  const [notes, setNotes]= useState([])
+
+  // loading notes from local storage
+  const LoadNotes = ()=>{
+    AsyncStorage.getItem("storedNotes").then(data => {
+      if(data !== null){
+        setNotes(JSON.parse(data))
+      }
+    }).catch((error)=> console.log(error))
+  }
+
+  // check whether app is ready
+  if (!ready){
+    return(
+      <AppLoading
+        startAsync={LoadNotes}
+        onFinish={()=> setReady(true)}
+        onError={console.warn}
+      />
+    )
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+      <Home notes={notes} setNotes={setNotes}/>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
